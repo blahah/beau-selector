@@ -1,6 +1,6 @@
 ## beau-selector
 
-When I say `bo`, you say 'selector'.
+When I say `bo`, [you say 'selector'](https://www.youtube.com/watch?v=vEtWdI9FByA).
 
 Run XPath or CSS selectors on arbitrary XML documents in the command-line.
 
