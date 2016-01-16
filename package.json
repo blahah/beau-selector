@@ -1,0 +1,41 @@
+{
+  "name": "beau-selector",
+  "description": "Use CSS or XPath selectors from the command line",
+  "version": "0.1.0",
+  "homepage": "https://github.com/blahah/beau-selector",
+  "author": {
+    "name": "Richard Smith-Unna",
+    "url": "https://github.com/blahah"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/blahah/beau-selector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blahah/beau-selector/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "xpath",
+    "css",
+    "selectors",
+    "scraping"
+  ],
+  "preferGlobal": true,
+  "bin": {
+    "beau": "./bin/bo"
+  },
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.8"
+  },
+  "scripts": {
+    "test": "mocha -R test"
+  },
+  "dependencies": {
+    "coffee-script": "^1.9.1",
+  },
+  "devDependencies": {
+    "verb": "~0.2.0"
+  }
+}
