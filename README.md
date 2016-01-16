@@ -24,5 +24,7 @@ wget -O - http://google.com | bo '//div'
 ## other stuff
 
 license: MIT
+
 created by: Rik Smith-Unna
+
 forked from: [cli-scrape](https://github.com/pthrasher/cli-scrape) and modded to take piped input rather than downloading directly
