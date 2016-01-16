@@ -56,6 +56,8 @@ getArgs = ->
     .usage(usage)
     .alias('a', 'attribute')
     .default('a', undefined)
+    .alias('o', 'outer')
+    .describe('o', 'get outer XML of the element')
     .alias('l', 'loglevel')
     .default('l', 'silent')
     .demand(1)
@@ -63,10 +65,12 @@ getArgs = ->
   [ query ] = argv._
   query = query.trim()
   attribute = argv.attribute?.trim()
+  outer = argv.outer
   loglevel = argv.loglevel.trim()
   {
     query
     attribute
+    outer
     loglevel
   }
 
@@ -88,23 +92,31 @@ fetchHTML = (url, cb) ->
 #
 # This is essentially a simple logging wrapper around jsdom.env
 domParse = (html, libs, cb) ->
-  jsdom.env html, libs, (err, window) ->
-    if err?
-      log.error 'parse', "Error processing DOM with libs: [ '#{libs.join '\', \''}' ]. (#{err})"
-      return cb err, window
+  opts =
+    html: html
+    scripts: libs
+    parsingMode: 'xml'
+    done: (err, window) ->
+      if err?
+        log.error 'parse', "Error processing DOM with libs: [ '#{libs.join '\', \''}' ]. (#{err})"
+        return cb err, window
 
-    log.verbose 'parse', "DOM parse successful with libs: [ '#{libs.join '\', \''}' ]."
-    cb err, window
+      log.verbose 'parse', "DOM parse successful with libs: [ '#{libs.join '\', \''}' ]."
+      cb err, window
+  jsdom.env opts
 
 # elToString
 # ----------
 #
 # depending on the query given by the user, we will be getting an html element,
 # or a plain old string. This should be handled elegantly.
-elToString = (el, attribute) ->
+elToString = (el, attribute, outer) ->
   if attribute
     log.verbose 'elToString', "Fetching #{attribute} from '#{el}'."
     return el.getAttribute(attribute)
+  else if outer && el.outerHTML?
+    log.verbose 'elToString', "Fetching outerHTML from '#{el}'."
+    return el.outerHTML.trim()
   else if el.innerHTML?
     log.verbose 'elToString', "Fetching innerHTML from '#{el}'."
     return el.innerHTML.trim()
@@ -151,7 +163,7 @@ executeCSSQuery = (query, window) ->
 
 
 # Get the args
-{ query, attribute, loglevel } = getArgs()
+{ query, attribute, outer, loglevel } = getArgs()
 # Set our default logging level, only log items at this level and higher.
 # The default loglevel is err - only show errors
 log.level = loglevel
@@ -193,7 +205,7 @@ process.stdin.on 'end', () ->
 
     strings = []
     for result in results
-      strings.push elToString(result, attribute)
+      strings.push elToString(result, attribute, outer)
 
     # Print the strings to stdout in such a way that they're all
     # separated by a newline, but the last line doesn't end in one.
