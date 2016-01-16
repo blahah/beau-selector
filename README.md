@@ -19,6 +19,7 @@ just pipe a document to `bo` and provide a selector
 ```
 cat some_document.html | bo 'a'
 wget -O - http://google.com | bo '//div'
+```
 
 ## other stuff
 
