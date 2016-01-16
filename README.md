@@ -2,7 +2,7 @@
 
 When I say `bo`, [you say 'selector'](https://youtu.be/vEtWdI9FByA?t=47s).
 
-Run XPath or CSS selectors on arbitrary XML documents in the command-line.
+Run XPath or CSS selectors on arbitrary X(HT)ML documents in the command-line.
 
 ## installation
 
