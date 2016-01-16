@@ -49,17 +49,24 @@ useXPath = (query) ->
 #
 # Wrapper for optimise that allows us to clean up the args as they come in.
 getArgs = ->
+  usage = 'Usage: bo [xpath|css]\n\n' +
+    'If no attribute is given, innerHTML, text or a plain string\n' +
+    'will be returned (depending on what is matched)'
   argv = optimist
-    .usage('Usage: bo [xpath|css]')
+    .usage(usage)
+    .alias('a', 'attribute')
+    .default('a', undefined)
     .alias('l', 'loglevel')
     .default('l', 'silent')
     .demand(1)
     .argv
   [ query ] = argv._
   query = query.trim()
+  attribute = argv.attribute?.trim()
   loglevel = argv.loglevel.trim()
   {
     query
+    attribute
     loglevel
   }
 
@@ -94,8 +101,11 @@ domParse = (html, libs, cb) ->
 #
 # depending on the query given by the user, we will be getting an html element,
 # or a plain old string. This should be handled elegantly.
-elToString = (el) ->
-  if el.innerHTML?
+elToString = (el, attribute) ->
+  if attribute
+    log.verbose 'elToString', "Fetching #{attribute} from '#{el}'."
+    return el.getAttribute(attribute)
+  else if el.innerHTML?
     log.verbose 'elToString', "Fetching innerHTML from '#{el}'."
     return el.innerHTML.trim()
   else if el.textContent?
@@ -141,7 +151,7 @@ executeCSSQuery = (query, window) ->
 
 
 # Get the args
-{ query, loglevel } = getArgs()
+{ query, attribute, loglevel } = getArgs()
 # Set our default logging level, only log items at this level and higher.
 # The default loglevel is err - only show errors
 log.level = loglevel
@@ -183,7 +193,7 @@ process.stdin.on 'end', () ->
 
     strings = []
     for result in results
-      strings.push elToString(result)
+      strings.push elToString(result, attribute)
 
     # Print the strings to stdout in such a way that they're all
     # separated by a newline, but the last line doesn't end in one.
