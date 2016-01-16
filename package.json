@@ -23,7 +23,7 @@
   ],
   "preferGlobal": true,
   "bin": {
-    "beau": "./bin/bo"
+    "bo": "./bin/bo"
   },
   "main": "index.js",
   "engines": {
