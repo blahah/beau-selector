@@ -31,8 +31,8 @@ absPath = (relPath) ->
 
 # These are the libraries used to do the parsing on the page. If the query is
 # an xpath query, XPATH\_LIBS is used. If not, CSS\_LIBS is used instead.
-XPATH_LIBS = ['./wgxpath.install.js']
-CSS_LIBS = ['./qwery.min.js', './qwery-pseudos.min.js']
+XPATH_LIBS = [absPath('wgxpath.install.js')]
+CSS_LIBS = [absPath('qwery.min.js', 'qwery-pseudos.min.js')]
 
 
 
@@ -110,7 +110,7 @@ elToString = (el) ->
 #
 # Executes the given xpath query against the given window.document object using
 # google's wicked fast xpath
-executeXPath = (query, doc) ->
+executeXPath = (query, window) ->
   unless window.wgxpath?
     log.error 'xpath', 'xpath selector engine not found!'
     return []
@@ -130,7 +130,7 @@ executeXPath = (query, doc) ->
 #
 # Executes the given css query against the given window.document object using
 # window.qwery
-executeCSSQuery = (query, doc) ->
+executeCSSQuery = (query, window) ->
   unless window.qwery?
     log.error 'css', 'qwery selector engine not found!'
     return []
