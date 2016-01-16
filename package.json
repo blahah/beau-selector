@@ -1,7 +1,7 @@
 {
   "name": "beau-selector",
   "description": "Use CSS or XPath selectors from the command line",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "homepage": "https://github.com/blahah/beau-selector",
   "author": {
     "name": "Richard Smith-Unna",
