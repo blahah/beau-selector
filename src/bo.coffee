@@ -22,7 +22,6 @@ log = require('verbalize')
 # use strict, yo!
 'use strict'
 
-request = require 'request'
 jsdom  = require 'jsdom'
 log   = require 'npmlog'
 path   = require 'path'
@@ -32,8 +31,8 @@ absPath = (relPath) ->
 
 # These are the libraries used to do the parsing on the page. If the query is
 # an xpath query, XPATH\_LIBS is used. If not, CSS\_LIBS is used instead.
-XPATH_LIBS = [require 'wgxpath.install.js']
-CSS_LIBS = [require 'qwery', require 'qwery-pseudos']
+XPATH_LIBS = ['./wgxpath.install.js']
+CSS_LIBS = ['./qwery.min.js', './qwery-pseudos.min.js']
 
 
 
@@ -112,7 +111,7 @@ elToString = (el) ->
 #
 # Executes the given xpath query against the given window.document object using
 # google's wicked fast xpath
-executeXPath = (query, window) ->
+executeXPath = (query, doc) ->
   unless window.wgxpath?
     log.error 'xpath', 'xpath selector engine not found!'
     return []
@@ -132,7 +131,7 @@ executeXPath = (query, window) ->
 #
 # Executes the given css query against the given window.document object using
 # window.qwery
-executeCSSQuery = (query, window) ->
+executeCSSQuery = (query, doc) ->
   unless window.qwery?
     log.error 'css', 'qwery selector engine not found!'
     return []
@@ -141,70 +140,52 @@ executeCSSQuery = (query, window) ->
   log.verbose 'css', "Found #{els.length} match(es)."
   els
 
-# Main
-# ====
-#
-# Only run if we're executed directly.
-if require.main == module
-  # Get the args
-  { query, loglevel } = getArgs()
-  # Set our default logging level, only log items at this level and higher.
-  # The default loglevel is err - only show errors
-  log.level = loglevel
-  process.stdin.setEncoding('utf8');
 
-  doc = ""
-  process.stdin.on 'readable', () ->
-    var chunk = process.stdin.read();
-    if chunk != null
-      doc += chunk
+# Get the args
+{ query, loglevel } = getArgs()
+# Set our default logging level, only log items at this level and higher.
+# The default loglevel is err - only show errors
+log.level = loglevel
+process.stdin.setEncoding 'utf8'
 
-  process.stdin.on 'end', () ->
+doc = ""
+process.stdin.on 'readable', () ->
+  chunk = process.stdin.read()
+  if chunk != null
+    doc += chunk
+
+process.stdin.on 'end', () ->
+  if err?
+    # If we hit an error while fetching the page, return 1 so that our
+    # command can be chained in the shell.
+    return process.exit 1
+
+  # Determin if we're using xpath or not, and set the libs appropriately.
+  xpath = useXPath query
+  libs = CSS_LIBS
+  if xpath
+    libs = XPATH_LIBS
+
+  domParse doc, libs, (err, window) ->
     if err?
-      # If we hit an error while fetching the page, return 1 so that our
+      # If we hit an error while parsing the document, return 1 so that our
       # command can be chained in the shell.
-      return process.exit 1
+      return process.exit(1)
 
-    # Determin if we're using xpath or not, and set the libs appropriately.
-    xpath = useXPath query
-    libs = CSS_LIBS
     if xpath
-      libs = XPATH_LIBS
+      results = executeXPath(query, window)
+    else
+      results = executeCSSQuery(query, window)
 
-    domParse doc, libs, (err, window) ->
-      if err?
-        # If we hit an error while parsing the document, return 1 so that our
-        # command can be chained in the shell.
-        return process.exit(1)
+    if not results or results.length < 1
+      # We had no results, so go ahead and exit 1 so that our command can be
+      # chained in the shell.
+      return process.exit(1)
 
-      if xpath
-        results = executeXPath query, window
-      else
-        results = executeCSSQuery query, window
+    strings = []
+    for result in results
+      strings.push elToString(result)
 
-      if not results or results.length < 1
-        # We had no results, so go ahead and exit 1 so that our command can be
-        # chained in the shell.
-        return process.exit(1)
-
-      strings = []
-      for result in results
-        strings.push elToString(result)
-
-      # Print the strings to stdout in such a way that they're all
-      # separated by a newline, but the last line doesn't end in one.
-      process.stdout.write strings.join '\n'
-
-
-# Export everything for testing purposes.
-#
-# All of the jasmine BDD tests are in the spec folder.
-module.exports = {
-  useXPath
-  getArgs
-  fetchHTML
-  domParse
-  elToString
-  executeXPath
-  executeCSSQuery
-}
+    # Print the strings to stdout in such a way that they're all
+    # separated by a newline, but the last line doesn't end in one.
+    process.stdout.write strings.join '\n'

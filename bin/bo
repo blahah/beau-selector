@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 require('coffee-script/register');
-require('../src/beau-selector.coffee');
+require('../src/bo.coffee');
