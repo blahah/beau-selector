@@ -38,7 +38,8 @@
     "fs-extra": "^0.26.4",
     "jsdom": "^3.1.2",
     "npmlog": "^2.0.0",
-    "optimist": "^0.6.1"
+    "optimist": "^0.6.1",
+    "verbalize": "^0.1.2"
   },
   "devDependencies": {
     "verb": "~0.2.0"

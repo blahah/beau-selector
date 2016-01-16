@@ -1,6 +1,10 @@
-fs = require('fs')
-path = require('path')
-log = require('verbalize')
+fs = require 'fs'
+path = require 'path'
+log = require 'verbalize'
+optimist = require 'optimist'
+jsdom  = require 'jsdom'
+log   = require 'npmlog'
+path   = require 'path'
 
 
 #  modified from cli-scrape
@@ -21,10 +25,6 @@ log = require('verbalize')
 
 # use strict, yo!
 'use strict'
-
-jsdom  = require 'jsdom'
-log   = require 'npmlog'
-path   = require 'path'
 
 absPath = (relPath) ->
  path.resolve __dirname, relPath
@@ -49,7 +49,6 @@ useXPath = (query) ->
 #
 # Wrapper for optimise that allows us to clean up the args as they come in.
 getArgs = ->
-  optimist = require 'optimist'
   argv = optimist
     .usage('Usage: bo [xpath|css]')
     .alias('l', 'loglevel')
