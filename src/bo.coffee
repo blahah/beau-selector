@@ -111,21 +111,24 @@ domParse = (html, libs, cb) ->
 # depending on the query given by the user, we will be getting an html element,
 # or a plain old string. This should be handled elegantly.
 elToString = (el, attribute, outer) ->
+  ret = ''
   if attribute
     log.verbose 'elToString', "Fetching #{attribute} from '#{el}'."
-    return el.getAttribute(attribute)
+    ret = el.getAttribute(attribute)
   else if outer && el.outerHTML?
     log.verbose 'elToString', "Fetching outerHTML from '#{el}'."
-    return el.outerHTML.trim()
+    ret = el.outerHTML.trim()
   else if el.innerHTML?
     log.verbose 'elToString', "Fetching innerHTML from '#{el}'."
-    return el.innerHTML.trim()
+    ret = el.innerHTML.trim()
   else if el.textContent?
     log.verbose 'elToString', "Fetching textContent from '#{el}'."
-    return el.textContent.trim()
+    ret = el.textContent.trim()
   else if Object.prototype.toString.call(el) is '[object String]'
     log.verbose 'elToString', "Content already a string: '#{el}'."
-    return el.trim()
+    ret = el.trim()
+  # replace newlines with spaces so we get one result per line
+  ret.replace(/\r?\n|\r/g, ' ')
 
 # executeXPath
 # ---------------
@@ -206,6 +209,7 @@ process.stdin.on 'end', () ->
     strings = []
     for result in results
       strings.push elToString(result, attribute, outer)
+
 
     # Print the strings to stdout in such a way that they're all
     # separated by a newline, but the last line doesn't end in one.
