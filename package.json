@@ -25,12 +25,12 @@
   "bin": {
     "bo": "./bin/bo"
   },
-  "main": "index.js",
+  "main": "src/index.js",
   "engines": {
     "node": ">=0.8"
   },
   "scripts": {
-    "build": "coffee",
+    "build": "coffee -c src/index.coffee",
     "test": "mocha -R test"
   },
   "dependencies": {
